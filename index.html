@@ -71,7 +71,7 @@
 
       /* Logo zone + toggle button */
       .sidebar-logo {
-        padding: 16px 14px 12px;
+        padding: 12px 0 12px 12px;
         border-bottom: 1px solid var(--border);
         flex-shrink: 0;
         display: flex;
@@ -84,6 +84,7 @@
       .logo-content {
         overflow: hidden;
         white-space: nowrap;
+        padding-left: 12px;
         transition: opacity var(--sidebar-transition);
       }
       .sidebar.collapsed .logo-content {
@@ -122,6 +123,13 @@
         font-size: 12px;
         transition: all 0.15s;
         line-height: 1;
+        margin-right: 12px;
+      }
+
+      @media (max-width: 900px) {
+        .sidebar-toggle {
+          display: none;
+        }
       }
 
       .sidebar-toggle:hover {
@@ -309,7 +317,7 @@
         gap: 6px;
         overflow: hidden;
         transition: opacity var(--sidebar-transition);
-				margin-top: auto;
+        margin-top: auto;
       }
 
       .sidebar.collapsed .sidebar-footer {
@@ -945,126 +953,376 @@
       }
 
       /* ════════════════════ CONFIG VIEW ════════════════════ */
-      .config-view { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+      .config-view {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
       .config-header {
         padding: 16px 24px 12px;
         border-bottom: 1px solid var(--border);
-        display: flex; align-items: center; justify-content: space-between; gap: 12px;
-        position: sticky; top: 0; background: var(--bg); z-index: 10; flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        z-index: 10;
+        flex-shrink: 0;
       }
 
-      .config-title { font-family: var(--mono); font-size: 17px; font-weight: 700; }
-      .config-subtitle { font-size: 12px; color: var(--text2); margin-top: 2px; }
+      .config-title {
+        font-family: var(--mono);
+        font-size: 17px;
+        font-weight: 700;
+      }
+      .config-subtitle {
+        font-size: 12px;
+        color: var(--text2);
+        margin-top: 2px;
+      }
 
-      .config-table-wrap { flex: 1; overflow: auto; padding: 16px 24px; }
+      .config-table-wrap {
+        flex: 1;
+        overflow: auto;
+        padding: 16px 24px;
+      }
 
-      .config-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+      .config-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px;
+      }
 
       .config-table th {
-        text-align: left; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-        color: var(--text2); padding: 8px 10px; border-bottom: 1px solid var(--border);
-        text-transform: uppercase; white-space: nowrap;
+        text-align: left;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: var(--text2);
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--border);
+        text-transform: uppercase;
+        white-space: nowrap;
       }
 
-      .config-table th.th-actions { width: 80px; text-align: right; }
+      .config-table th.th-actions {
+        width: 80px;
+        text-align: right;
+      }
 
-      .config-row { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-      .config-row:hover { background: rgba(255,255,255,0.02); }
-      .config-row td { padding: 9px 10px; vertical-align: middle; font-size: 13px; }
-      .config-row.editing { background: rgba(79,140,255,0.05); }
+      .config-row {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.1s;
+      }
+      .config-row:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .config-row td {
+        padding: 9px 10px;
+        vertical-align: middle;
+        font-size: 13px;
+      }
+      .config-row.editing {
+        background: rgba(79, 140, 255, 0.05);
+      }
 
-      .config-cell-site { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.04em; }
-      .config-cell-sector { font-weight: 500; }
-      .config-cell-task { font-size: 12px; color: var(--text); }
-      .config-cell-responsible { font-size: 12px; color: var(--text2); font-style: italic; }
+      .config-cell-site {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+      }
+      .config-cell-sector {
+        font-weight: 500;
+      }
+      .config-cell-task {
+        font-size: 12px;
+        color: var(--text);
+      }
+      .config-cell-responsible {
+        font-size: 12px;
+        color: var(--text2);
+        font-style: italic;
+      }
 
-      .config-row-actions { display: flex; justify-content: flex-end; gap: 4px; }
+      .config-row-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 4px;
+      }
 
       .btn-icon {
-        width: 26px; height: 26px; border-radius: 5px; border: 1px solid var(--border);
-        background: var(--bg3); color: var(--text2); cursor: pointer;
-        display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.15s;
+        width: 26px;
+        height: 26px;
+        border-radius: 5px;
+        border: 1px solid var(--border);
+        background: var(--bg3);
+        color: var(--text2);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        transition: all 0.15s;
       }
-      .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
-      .btn-icon.del:hover { border-color: var(--ko); color: var(--ko); background: rgba(255,79,106,0.08); }
+      .btn-icon:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn-icon.del:hover {
+        border-color: var(--ko);
+        color: var(--ko);
+        background: rgba(255, 79, 106, 0.08);
+      }
 
       .config-input {
-        background: var(--bg3); border: 1px solid var(--accent); color: var(--text);
-        font-family: var(--sans); font-size: 12px; padding: 5px 8px; border-radius: 5px; width: 100%; outline: none;
+        background: var(--bg3);
+        border: 1px solid var(--accent);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 12px;
+        padding: 5px 8px;
+        border-radius: 5px;
+        width: 100%;
+        outline: none;
       }
-      .config-input:focus { border-color: var(--accent2); }
+      .config-input:focus {
+        border-color: var(--accent2);
+      }
 
-      .config-add-section { padding: 14px 24px 20px; border-top: 1px solid var(--border); flex-shrink: 0; }
-      .config-add-title { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--text2); text-transform: uppercase; margin-bottom: 10px; }
-      .config-add-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
-      .config-field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
-      .config-field-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; color: var(--text2); text-transform: uppercase; }
-      .config-add-form .config-input { border-color: var(--border); }
-      .config-add-form .config-input:focus { border-color: var(--accent); }
+      .config-add-section {
+        padding: 14px 24px 20px;
+        border-top: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .config-add-title {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: var(--text2);
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .config-add-form {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+      }
+      .config-field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+        min-width: 120px;
+      }
+      .config-field-label {
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 0.08em;
+        color: var(--text2);
+        text-transform: uppercase;
+      }
+      .config-add-form .config-input {
+        border-color: var(--border);
+      }
+      .config-add-form .config-input:focus {
+        border-color: var(--accent);
+      }
 
-      .tasks-cell { display: flex; flex-direction: column; gap: 3px; }
-      .task-chip { font-size: 11px; color: var(--text2); display: flex; align-items: center; gap: 4px; }
-      .task-chip::before { content: '·'; color: var(--accent); font-weight: 700; }
+      .tasks-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .task-chip {
+        font-size: 11px;
+        color: var(--text2);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .task-chip::before {
+        content: "·";
+        color: var(--accent);
+        font-weight: 700;
+      }
 
       /* Sidebar tabs */
-      .nav-tab-strip { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-      .nav-tab {
-        flex: 1; padding: 9px 0; font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em;
-        text-transform: uppercase; text-align: center; color: var(--text2); cursor: pointer;
-        border-bottom: 2px solid transparent; transition: all 0.15s;
-        background: none; border-top: none; border-left: none; border-right: none; white-space: nowrap;
+      .nav-tab-strip {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
       }
-      .nav-tab:hover { color: var(--text); }
-      .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+      .nav-tab {
+        flex: 1;
+        padding: 9px 0;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        text-align: center;
+        color: var(--text2);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.15s;
+        background: none;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        white-space: nowrap;
+      }
+      .nav-tab:hover {
+        color: var(--text);
+      }
+      .nav-tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
 
       /* Sector/Task editor modal */
       .modal-box-lg {
-        background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
-        padding: 28px; max-width: 640px; width: 100%; max-height: 90vh; overflow-y: auto;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px;
+        max-width: 640px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
       }
 
-      .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-      .modal-field { display: flex; flex-direction: column; gap: 5px; }
-      .modal-field.full { grid-column: 1 / -1; }
-      .modal-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--text2); text-transform: uppercase; }
+      .modal-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .modal-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .modal-field.full {
+        grid-column: 1 / -1;
+      }
+      .modal-label {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        color: var(--text2);
+        text-transform: uppercase;
+      }
 
       .modal-input {
-        background: var(--bg3); border: 1px solid var(--border); color: var(--text);
-        font-family: var(--sans); font-size: 13px; padding: 8px 10px; border-radius: 6px;
-        outline: none; width: 100%; transition: border-color 0.15s;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 13px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        outline: none;
+        width: 100%;
+        transition: border-color 0.15s;
       }
-      .modal-input:focus { border-color: var(--accent); }
-      textarea.modal-input { resize: vertical; min-height: 70px; }
+      .modal-input:focus {
+        border-color: var(--accent);
+      }
+      textarea.modal-input {
+        resize: vertical;
+        min-height: 70px;
+      }
 
-      .tasks-editor { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+      .tasks-editor {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 4px;
+      }
 
       .task-editor-row {
-        display: flex; gap: 6px; align-items: flex-start;
-        background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+        display: flex;
+        gap: 6px;
+        align-items: flex-start;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
       }
-      .task-editor-row .task-num { font-family: var(--mono); font-size: 10px; color: var(--text2); min-width: 18px; padding-top: 6px; }
-      .task-editor-fields { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-      .task-editor-fields input, .task-editor-fields textarea {
-        background: var(--bg2); border: 1px solid var(--border); color: var(--text);
-        font-family: var(--sans); font-size: 12px; padding: 5px 8px; border-radius: 5px; outline: none; width: 100%;
+      .task-editor-row .task-num {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--text2);
+        min-width: 18px;
+        padding-top: 6px;
       }
-      .task-editor-fields input:focus, .task-editor-fields textarea:focus { border-color: var(--accent); }
-      .task-editor-fields textarea { resize: vertical; min-height: 50px; }
+      .task-editor-fields {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .task-editor-fields input,
+      .task-editor-fields textarea {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 12px;
+        padding: 5px 8px;
+        border-radius: 5px;
+        outline: none;
+        width: 100%;
+      }
+      .task-editor-fields input:focus,
+      .task-editor-fields textarea:focus {
+        border-color: var(--accent);
+      }
+      .task-editor-fields textarea {
+        resize: vertical;
+        min-height: 50px;
+      }
 
       .btn-add-task {
-        background: none; border: 1px dashed var(--border); color: var(--text2);
-        font-family: var(--mono); font-size: 11px; padding: 8px; border-radius: 6px; cursor: pointer;
-        transition: all 0.15s; width: 100%; text-align: center; letter-spacing: 0.04em;
+        background: none;
+        border: 1px dashed var(--border);
+        color: var(--text2);
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s;
+        width: 100%;
+        text-align: center;
+        letter-spacing: 0.04em;
       }
-      .btn-add-task:hover { border-color: var(--accent); color: var(--accent); }
+      .btn-add-task:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
 
       .btn-primary {
-        background: var(--accent); border: 1px solid var(--accent); color: #fff;
-        font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
-        padding: 8px 18px; border-radius: 6px; cursor: pointer; transition: opacity 0.15s; white-space: nowrap;
+        background: var(--accent);
+        border: 1px solid var(--accent);
+        color: #fff;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        padding: 8px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: opacity 0.15s;
+        white-space: nowrap;
       }
-      .btn-primary:hover { opacity: 0.85; }
+      .btn-primary:hover {
+        opacity: 0.85;
+      }
 
       /* EMPTY */
       .empty-state {
@@ -1121,13 +1379,27 @@
         max-height: 600px;
       }
 
-      .col-task { width: 20%; }
-      .col-responsible { width: 10%; }
-      .col-rating { width: 13%; }
-      .col-comment { width: 16%; }
-      .col-quotient { width: 10%; }
-      .col-photo { width: 10%; }
-      .col-history { width: 21%; }
+      .col-task {
+        width: 20%;
+      }
+      .col-responsible {
+        width: 10%;
+      }
+      .col-rating {
+        width: 13%;
+      }
+      .col-comment {
+        width: 16%;
+      }
+      .col-quotient {
+        width: 10%;
+      }
+      .col-photo {
+        width: 10%;
+      }
+      .col-history {
+        width: 21%;
+      }
 
       /* ════════════════════ RESPONSIVE ════════════════════ */
       @media (max-width: 900px) {
@@ -1211,7 +1483,7 @@
       <!-- ── SIDEBAR ── -->
       <aside class="sidebar" :class="{ collapsed: sidebarCollapsed, 'mobile-open': mobileOpen }">
         <div class="sidebar-logo">
-          <div class="logo-content">
+          <div v-if="!sidebarCollapsed" class="logo-content">
             <div class="logo-text">TaskOps</div>
             <div class="logo-sub">Suivi Hebdomadaire</div>
           </div>
@@ -1220,53 +1492,54 @@
           </button>
         </div>
 
-        <div class="sidebar-week">
-          <span class="week-label">SEM.</span>
-          <select class="week-select" v-model="currentWeek">
-            <option v-for="w in availableWeeks" :key="w" :value="w">{{ w }}</option>
-          </select>
-        </div>
-
-        <div class="nav-tab-strip">
-          <button class="nav-tab" :class="{ active: sidebarTab === 'nav' }" @click="sidebarTab = 'nav'">Secteurs</button>
-          <button class="nav-tab" :class="{ active: sidebarTab === 'config' }" @click="sidebarTab = 'config'; setView('config')">⚙ Config</button>
-        </div>
-
-        <nav class="sidebar-nav" v-show="sidebarTab === 'nav'">
-          <div class="site-group" v-for="site in data.sites" :key="site.id">
-            <div class="site-header" @click="toggleSite(site.id)">
-              <span class="site-chevron" :class="{ open: openSites.has(site.id) }">▶</span>
-              <span class="site-name">{{ site.name }}</span>
-              <span class="site-badge">{{ site.sectors.length }}</span>
-              <button class="site-export-btn" @click.stop="exportSite(site)" title="Export XLSX du site">XLSX</button>
-            </div>
-            <transition name="slide">
-              <div v-if="openSites.has(site.id)">
-                <div
-                  v-for="sector in site.sectors"
-                  :key="sector.id"
-                  class="nav-item"
-                  :class="{ active: currentSector?.id === sector.id }"
-                  @click="selectSector(sector, site)"
-                >
-                  <div class="nav-completion" :style="{ background: completionColor(sector) }"></div>
-                  <span class="nav-item-name">{{ sector.name }}</span>
-                  <span class="nav-item-badge">{{ completionCount(sector) }}/{{ sector.tasks.length }}</span>
-                </div>
-              </div>
-            </transition>
+        <template v-if="!sidebarCollapsed">
+          <div class="sidebar-week">
+            <span class="week-label">SEM.</span>
+            <select class="week-select" v-model="currentWeek">
+              <option v-for="w in availableWeeks" :key="w" :value="w">{{ w }}</option>
+            </select>
           </div>
-        </nav>
 
-        <div class="sidebar-footer">
-          <button class="btn-clean" @click="openCleanModal" title="Nettoyer les semaines passées">🧹 Nettoyer le stockage</button>
-          <button class="btn-export-all" @click="exportAll">⬇ EXPORT GLOBAL</button>
-        </div>
+          <div class="nav-tab-strip">
+            <button class="nav-tab" :class="{ active: sidebarTab === 'nav' }" @click="sidebarTab = 'nav'; setView('nav');">Secteurs</button>
+            <button class="nav-tab" :class="{ active: sidebarTab === 'config' }" @click="sidebarTab = 'config'; setView('config')">⚙ Config</button>
+          </div>
+
+          <nav class="sidebar-nav" v-show="sidebarTab === 'nav'">
+            <div class="site-group" v-for="site in data.sites" :key="site.id">
+              <div class="site-header" @click="toggleSite(site.id)">
+                <span class="site-chevron" :class="{ open: openSites.has(site.id) }">▶</span>
+                <span class="site-name">{{ site.name }}</span>
+                <span class="site-badge">{{ site.sectors.length }}</span>
+                <button class="site-export-btn" @click.stop="exportSite(site)" title="Export XLSX du site">XLSX</button>
+              </div>
+              <transition name="slide">
+                <div v-if="openSites.has(site.id)">
+                  <div
+                    v-for="sector in site.sectors"
+                    :key="sector.id"
+                    class="nav-item"
+                    :class="{ active: currentSector?.id === sector.id }"
+                    @click="selectSector(sector, site)"
+                  >
+                    <div class="nav-completion" :style="{ background: completionColor(sector) }"></div>
+                    <span class="nav-item-name">{{ sector.name }}</span>
+                    <span class="nav-item-badge">{{ completionCount(sector) }}/{{ sector.tasks.length }}</span>
+                  </div>
+                </div>
+              </transition>
+            </div>
+          </nav>
+
+          <div class="sidebar-footer">
+            <button class="btn-clean" @click="openCleanModal" title="Nettoyer les semaines passées">🧹 Nettoyer le stockage</button>
+            <button class="btn-export-all" @click="exportAll">⬇ EXPORT GLOBAL</button>
+          </div>
+        </template>
       </aside>
 
       <!-- ── MAIN ── -->
       <main class="main">
-
         <!-- ══ CONFIG VIEW ══ -->
         <template v-if="currentView === 'config'">
           <div class="config-view">
@@ -1285,9 +1558,9 @@
               <table class="config-table">
                 <thead>
                   <tr>
-                    <th style="width:14%">Site</th>
-                    <th style="width:16%">Secteur</th>
-                    <th style="width:12%">Responsable</th>
+                    <th style="width: 14%">Site</th>
+                    <th style="width: 16%">Secteur</th>
+                    <th style="width: 12%">Responsable</th>
                     <th>Tâches</th>
                     <th class="th-actions">Actions</th>
                   </tr>
@@ -1297,7 +1570,10 @@
                     <template v-for="sector in site.sectors" :key="sector.id">
                       <tr class="config-row">
                         <td><div class="config-cell-site">{{ site.name }}</div></td>
-                        <td><div class="config-cell-sector">{{ sector.name }}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">{{ sector.description }}</div></td>
+                        <td>
+                          <div class="config-cell-sector">{{ sector.name }}</div>
+                          <div style="font-size: 11px; color: var(--text2); margin-top: 2px">{{ sector.description }}</div>
+                        </td>
                         <td><div class="config-cell-responsible">{{ sector.responsible || '—' }}</div></td>
                         <td>
                           <div class="tasks-cell">
@@ -1388,7 +1664,7 @@
                     </td>
                     <!-- RESPONSABLE -->
                     <td>
-                      <div style="font-size:12px;color:var(--text2);">{{ currentSector.responsible || '—' }}</div>
+                      <div style="font-size: 12px; color: var(--text2)">{{ currentSector.responsible || '—' }}</div>
                     </td>
                     <!-- RATING -->
                     <td>
@@ -1514,7 +1790,7 @@
       <transition name="fade">
         <div v-if="showSectorModal" class="modal-overlay" @click.self="showSectorModal = false">
           <div class="modal-box-lg">
-            <div class="modal-title" style="color:var(--accent)">{{ editingId ? '✎ Éditer le secteur' : '+ Nouveau secteur' }}</div>
+            <div class="modal-title" style="color: var(--accent)">{{ editingId ? '✎ Éditer le secteur' : '+ Nouveau secteur' }}</div>
             <div class="modal-grid">
               <div class="modal-field">
                 <label class="modal-label">Site</label>
@@ -1534,7 +1810,7 @@
               </div>
             </div>
 
-            <div class="modal-field full" style="margin-bottom:12px">
+            <div class="modal-field full" style="margin-bottom: 12px">
               <label class="modal-label">Tâches</label>
               <div class="tasks-editor">
                 <div class="task-editor-row" v-for="(task, idx) in sectorForm.tasks" :key="idx">
@@ -1544,7 +1820,7 @@
                     <input v-model="task.shortDesc" placeholder="Description courte" />
                     <textarea v-model="task.longDesc" placeholder="Description longue" rows="2"></textarea>
                   </div>
-                  <button class="btn-icon del" @click="sectorForm.tasks.splice(idx,1)" style="flex-shrink:0;margin-top:2px">✕</button>
+                  <button class="btn-icon del" @click="sectorForm.tasks.splice(idx,1)" style="flex-shrink: 0; margin-top: 2px">✕</button>
                 </div>
                 <button class="btn-add-task" @click="sectorForm.tasks.push({title:'',shortDesc:'',longDesc:''})">+ Ajouter une tâche</button>
               </div>
@@ -1605,8 +1881,8 @@
     </div>
 
     <script>
-      // ─── DONNÉES ────────────────────────────────────────────────────────────────
-      const SAMPLE_DATA = {
+      // ─── CONFIG PAR DÉFAUT (utilisée uniquement si aucune config sauvegardée) ───
+      const DEFAULT_DATA = {
         sites: [
           {
             id: "site-paris",
@@ -1750,7 +2026,8 @@
 
       createApp({
         setup() {
-          const data = initData();
+          // data est une ref : son contenu sera chargé depuis localStorage dans onMounted
+          const data = ref({ sites: [] });
           const currentSector = ref(null);
           const currentSite = ref(null);
           const lightboxSrc = ref(null);
@@ -1759,19 +2036,19 @@
           const openSites = reactive(new Set());
           const sidebarCollapsed = ref(false);
           const mobileOpen = ref(false);
-          const sidebarTab = ref('nav');           // 'nav' | 'config'
-          const currentView = ref('sector');       // 'sector' | 'config'
+          const sidebarTab = ref("nav"); // 'nav' | 'config'
+          const currentView = ref("sector"); // 'sector' | 'config'
           const showCleanModal = ref(false);
           const showSectorModal = ref(false);
-          const editingId = ref(null);             // sectorId en cours d'édition, null = création
-          const sectorForm = reactive({ siteName: '', sectorName: '', description: '', responsible: '', tasks: [] });
+          const editingId = ref(null); // sectorId en cours d'édition, null = création
+          const sectorForm = reactive({ siteName: "", sectorName: "", description: "", responsible: "", tasks: [] });
           const cleanStats = ref({ total: 0, toDelete: 0, toKeep: 0, photos: 0, savedKB: 0 });
           const fileInputs = {};
           const cameraInputs = {};
           const storageKey = "taskops_v2";
-          const configKey  = "taskops_config_v1";  // Clé séparée — jamais nettoyée
+          const configKey = "taskops_config_v1"; // Clé séparée — jamais nettoyée
 
-          // ── CHARGEMENT DES DONNÉES (localStorage > SAMPLE_DATA) ──────────────
+          // ── CONFIG (localStorage séparé, jamais nettoyé) ─────────────────────
           function loadConfig() {
             try {
               const raw = localStorage.getItem(configKey);
@@ -1782,12 +2059,6 @@
 
           function saveConfig(cfg) {
             localStorage.setItem(configKey, JSON.stringify(cfg));
-          }
-
-          function initData() {
-            const saved = loadConfig();
-            if (saved && saved.sites) return reactive(saved);
-            return reactive(JSON.parse(JSON.stringify(SAMPLE_DATA)));
           }
 
           // ── SEMAINES ──────────────────────────────────────────────────────────
@@ -1903,8 +2174,8 @@
           function selectSector(sector, site) {
             currentSector.value = sector;
             currentSite.value = site;
-            currentView.value = 'sector';
-            sidebarTab.value = 'nav';
+            currentView.value = "sector";
+            sidebarTab.value = "nav";
             mobileOpen.value = false;
           }
 
@@ -1994,7 +2265,7 @@
 
           function getAllTaskIds() {
             const ids = [];
-            data.sites.forEach((site) => site.sectors.forEach((sector) => sector.tasks.forEach((t) => ids.push(t.id))));
+            data.value.sites.forEach((site) => site.sectors.forEach((sector) => sector.tasks.forEach((t) => ids.push(t.id))));
             return ids;
           }
 
@@ -2195,7 +2466,7 @@
           function exportAll() {
             const week = currentWeek.value;
             const entries = [];
-            data.sites.forEach((site) => site.sectors.forEach((sector) => entries.push({ site, sector, week })));
+            data.value.sites.forEach((site) => site.sectors.forEach((sector) => entries.push({ site, sector, week })));
             buildXlsxWithPhotos(entries, `rapport_global_${week}.xlsx`);
           }
 
@@ -2213,11 +2484,11 @@
           // ── CONFIG FUNCTIONS ──────────────────────────────────────────────────
           function setView(v) {
             currentView.value = v;
-            if (v !== 'config') sidebarTab.value = 'nav';
+            if (v !== "config") sidebarTab.value = "nav";
           }
 
           function persistConfig() {
-            saveConfig({ sites: data.sites });
+            saveConfig({ sites: data.value.sites });
           }
 
           function genId(prefix) {
@@ -2226,111 +2497,116 @@
 
           function openAddModal() {
             editingId.value = null;
-            sectorForm.siteName    = '';
-            sectorForm.sectorName  = '';
-            sectorForm.description = '';
-            sectorForm.responsible = '';
-            sectorForm.tasks       = [{ title: '', shortDesc: '', longDesc: '' }];
-            showSectorModal.value  = true;
+            sectorForm.siteName = "";
+            sectorForm.sectorName = "";
+            sectorForm.description = "";
+            sectorForm.responsible = "";
+            sectorForm.tasks = [{ title: "", shortDesc: "", longDesc: "" }];
+            showSectorModal.value = true;
           }
 
           function openEditModal(site, sector) {
-            editingId.value        = sector.id;
-            sectorForm.siteName    = site.name;
-            sectorForm.sectorName  = sector.name;
-            sectorForm.description = sector.description || '';
-            sectorForm.responsible = sector.responsible || '';
-            sectorForm.tasks       = sector.tasks.map(t => ({ ...t }));
-            showSectorModal.value  = true;
+            editingId.value = sector.id;
+            sectorForm.siteName = site.name;
+            sectorForm.sectorName = sector.name;
+            sectorForm.description = sector.description || "";
+            sectorForm.responsible = sector.responsible || "";
+            sectorForm.tasks = sector.tasks.map((t) => ({ ...t }));
+            showSectorModal.value = true;
           }
 
           function saveSectorModal() {
-            const siteName    = sectorForm.siteName.trim();
-            const sectorName  = sectorForm.sectorName.trim();
-            if (!siteName || !sectorName) return alert('Site et Secteur sont obligatoires.');
-            const validTasks = sectorForm.tasks.filter(t => t.title.trim());
-            if (!validTasks.length) return alert('Au moins une tâche est requise.');
+            const siteName = sectorForm.siteName.trim();
+            const sectorName = sectorForm.sectorName.trim();
+            if (!siteName || !sectorName) return alert("Site et Secteur sont obligatoires.");
+            const validTasks = sectorForm.tasks.filter((t) => t.title.trim());
+            if (!validTasks.length) return alert("Au moins une tâche est requise.");
 
             if (editingId.value) {
               // Édition
-              for (const site of data.sites) {
-                const idx = site.sectors.findIndex(s => s.id === editingId.value);
+              for (const site of data.value.sites) {
+                const idx = site.sectors.findIndex((s) => s.id === editingId.value);
                 if (idx !== -1) {
                   // Renommer le site si besoin
                   site.name = siteName;
                   const sec = site.sectors[idx];
-                  sec.name        = sectorName;
+                  sec.name = sectorName;
                   sec.description = sectorForm.description;
                   sec.responsible = sectorForm.responsible;
                   // Merge des tâches : conserver les ids existants quand possible
                   sec.tasks = validTasks.map((t, i) => ({
                     id: t.id || genId(`${sec.id}-t`),
                     title: t.title.trim(),
-                    shortDesc: t.shortDesc || '',
-                    longDesc: t.longDesc || '',
+                    shortDesc: t.shortDesc || "",
+                    longDesc: t.longDesc || "",
                   }));
                   break;
                 }
               }
             } else {
               // Création : trouver ou créer le site
-              let site = data.sites.find(s => s.name.toLowerCase() === siteName.toLowerCase());
+              let site = data.value.sites.find((s) => s.name.toLowerCase() === siteName.toLowerCase());
               if (!site) {
-                site = { id: genId('site'), name: siteName, sectors: [] };
-                data.sites.push(site);
+                site = { id: genId("site"), name: siteName, sectors: [] };
+                data.value.sites.push(site);
               }
-              const sectorId = genId('sector');
+              const sectorId = genId("sector");
               site.sectors.push({
                 id: sectorId,
                 name: sectorName,
                 description: sectorForm.description,
                 responsible: sectorForm.responsible,
-                tasks: validTasks.map(t => ({
+                tasks: validTasks.map((t) => ({
                   id: genId(sectorId),
                   title: t.title.trim(),
-                  shortDesc: t.shortDesc || '',
-                  longDesc: t.longDesc || '',
-                }))
+                  shortDesc: t.shortDesc || "",
+                  longDesc: t.longDesc || "",
+                })),
               });
             }
 
             persistConfig();
             showSectorModal.value = false;
             // Ouvrir le site dans la nav
-            const updatedSite = data.sites.find(s => s.name.toLowerCase() === siteName.toLowerCase());
+            const updatedSite = data.value.sites.find((s) => s.name.toLowerCase() === siteName.toLowerCase());
             if (updatedSite) openSites.add(updatedSite.id);
           }
 
           function deleteSector(site, sector) {
             if (!confirm(`Supprimer le secteur "${sector.name}" et ses ${sector.tasks.length} tâche(s) ?`)) return;
-            site.sectors = site.sectors.filter(s => s.id !== sector.id);
+            site.sectors = site.sectors.filter((s) => s.id !== sector.id);
             // Nettoyer le site si vide
             if (!site.sectors.length) {
-              const idx = data.sites.findIndex(s => s.id === site.id);
-              if (idx !== -1) data.sites.splice(idx, 1);
+              const idx = data.value.sites.findIndex((s) => s.id === site.id);
+              if (idx !== -1) data.value.sites.splice(idx, 1);
             }
             persistConfig();
             // Si le secteur supprimé était sélectionné, reset
             if (currentSector.value?.id === sector.id) {
               currentSector.value = null;
-              currentSite.value   = null;
+              currentSite.value = null;
             }
           }
 
           function exportConfigJson() {
-            const json = JSON.stringify({ sites: data.sites }, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            triggerDownload(blob, `taskops_config_${new Date().toISOString().slice(0,10)}.json`);
+            const json = JSON.stringify({ sites: data.value.sites }, null, 2);
+            const blob = new Blob([json], { type: "application/json" });
+            triggerDownload(blob, `taskops_config_${new Date().toISOString().slice(0, 10)}.json`);
           }
 
           // ── INIT ──────────────────────────────────────────────────────────────
           onMounted(() => {
-            // Persister la config initiale si pas encore de config sauvegardée
-            if (!loadConfig()) persistConfig();
-            data.sites.forEach((s) => openSites.add(s.id));
-            if (data.sites.length && data.sites[0].sectors.length) {
-              currentSite.value = data.sites[0];
-              currentSector.value = data.sites[0].sectors[0];
+            // Charger la config depuis localStorage, ou utiliser DEFAULT_DATA
+            const saved = loadConfig();
+            data.value = saved?.sites ? saved : JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+            // Ouvrir tous les sites dans la sidebar
+            data.value.sites.forEach((s) => openSites.add(s.id));
+
+            // Sélectionner le premier secteur disponible
+            if (data.value.sites.length && data.value.sites[0].sectors.length) {
+              currentSite.value = data.value.sites[0];
+              currentSector.value = data.value.sites[0].sectors[0];
             }
           });
 

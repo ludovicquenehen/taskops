@@ -1549,7 +1549,6 @@
                 <div class="config-subtitle">Gérer les sites, secteurs, tâches et responsables</div>
               </div>
               <div class="header-actions">
-                <button class="btn" @click="exportConfigJson">Export JSON</button>
                 <button class="btn-primary" @click="openAddModal">+ Ajouter un secteur</button>
               </div>
             </div>
@@ -1884,7 +1883,7 @@
       // ─── CONFIG PAR DÉFAUT (utilisée uniquement si aucune config sauvegardée) ───
       const DEFAULT_DATA = {
         sites: [
-          {
+          /*{
             id: "site-paris",
             name: "Site Paris",
             sectors: [
@@ -2016,7 +2015,7 @@
                 ],
               },
             ],
-          },
+          },*/
         ],
       };
 
@@ -2588,12 +2587,6 @@
             }
           }
 
-          function exportConfigJson() {
-            const json = JSON.stringify({ sites: data.value.sites }, null, 2);
-            const blob = new Blob([json], { type: "application/json" });
-            triggerDownload(blob, `taskops_config_${new Date().toISOString().slice(0, 10)}.json`);
-          }
-
           // ── INIT ──────────────────────────────────────────────────────────────
           onMounted(() => {
             // Charger la config depuis localStorage, ou utiliser DEFAULT_DATA
@@ -2635,7 +2628,6 @@
             openEditModal,
             saveSectorModal,
             deleteSector,
-            exportConfigJson,
             toggleSidebar,
             toggleSite,
             selectSector,

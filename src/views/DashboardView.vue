@@ -45,6 +45,7 @@
                   <div class="nav-completion" :style="{ background: completionColor(sector) }"></div>
                   <span class="nav-item-name">{{ sector.name }}</span>
                   <span class="nav-item-badge">{{ completionCount(sector) }}/{{ sector.tasks.length }}</span>
+									<button class="site-export-btn" title="Export XLSX du secteur" @click="exportSectorDirect()">XLSX</button>
                 </div>
               </div>
             </transition>
@@ -53,12 +54,17 @@
       </nav>
 
       <div class="sidebar-footer">
-        <button class="btn-clean" @click="openCleanModal" title="Nettoyer les semaines passées">🧹 Nettoyer le stockage</button>
         <button class="btn-export-all" @click="exportAll">⬇ EXPORT GLOBAL</button>
+      </div>
+      <div class="sidebar-footer">
+        <UserMenu />
       </div>
     </template>
     <template v-else>
       <div class="nav-tab-strip">
+        <select class="week-select" v-model="currentWeek">
+          <option v-for="w in availableWeeks" :key="w" :value="w">{{ w.split("-")[1] }}</option>
+        </select>
         <button class="nav-tab" :class="{ active: currentView === 'sector' }" @click="setView('sector')">🏢</button>
         <button class="nav-tab" :class="{ active: currentView === 'agent' }" @click="setView('agent')">🥷</button>
         <button class="nav-tab" :class="{ active: currentView === 'config' }" @click="setView('config')">⚙️</button>
@@ -215,11 +221,6 @@
                 </div>
               </div>
             </div>
-          </div>
-          <div class="header-actions">
-            <button class="btn" @click="exportSectorDirect('csv')">CSV</button>
-            <button class="btn" @click="exportSectorDirect('xlsx')">XLSX</button>
-            <UserMenu />
           </div>
         </header>
 
@@ -476,51 +477,6 @@
         <div class="modal-actions">
           <button class="btn" @click="showAgentModal = false">Annuler</button>
           <button class="btn-primary" @click="saveAgentModal">{{ editingId ? "Enregistrer" : "Créer" }}</button>
-        </div>
-      </div>
-    </div>
-  </transition>
-
-  <!-- ════════════════════ CLEAN MODAL ════════════════════ -->
-  <transition name="fade">
-    <div v-if="showCleanModal" class="modal-overlay" @click.self="showCleanModal = false">
-      <div class="modal-box">
-        <div class="modal-title">🧹 Nettoyage du stockage</div>
-        <div class="modal-body">
-          <p>
-            Cette opération va <strong>supprimer les données des semaines passées</strong> (commentaires, photos, ratings) tout en
-            <strong>préservant le quotient</strong> de chaque tâche sous la forme d'une entrée synthétique.
-          </p>
-          <div class="clean-stats">
-            <div class="clean-stat-row">
-              <span class="clean-stat-label">Entrées totales</span>
-              <span class="clean-stat-val">{{ cleanStats.total }}</span>
-            </div>
-            <div class="clean-stat-row">
-              <span class="clean-stat-label">Semaines passées à supprimer</span>
-              <span class="clean-stat-val red">{{ cleanStats.toDelete }}</span>
-            </div>
-            <div class="clean-stat-row">
-              <span class="clean-stat-label">Semaine courante (conservée)</span>
-              <span class="clean-stat-val green">{{ cleanStats.toKeep }}</span>
-            </div>
-            <div class="clean-stat-row">
-              <span class="clean-stat-label">Photos supprimées</span>
-              <span class="clean-stat-val red">{{ cleanStats.photos }}</span>
-            </div>
-            <div class="clean-stat-row">
-              <span class="clean-stat-label">Espace libéré (estimé)</span>
-              <span class="clean-stat-val">~ {{ cleanStats.savedKB }} KB</span>
-            </div>
-          </div>
-          <p style="margin-top: 8px; font-size: 12px">
-            Pour chaque tâche avec un historique, une entrée synthétique <strong>« _snapshot »</strong> sera créée pour maintenir la continuité du
-            quotient.
-          </p>
-        </div>
-        <div class="modal-actions">
-          <button class="btn" @click="showCleanModal = false">Annuler</button>
-          <button class="btn-danger" @click="runClean">Nettoyer</button>
         </div>
       </div>
     </div>
@@ -796,101 +752,6 @@ function removePhoto(taskId) {
   }
 }
 
-// ── CLEAN STORAGE ─────────────────────────────────────────────────────
-// Stratégie :
-// 1. On collecte tous les taskId connus depuis le JSON de données.
-// 2. Pour chaque task, on calcule le quotient AVANT nettoyage.
-// 3. On supprime toutes les entrées des semaines != semaine courante.
-// 4. On injecte une entrée synthétique "_snapshot" sur la semaine la plus
-//    récente supprimée, avec un rating fictif encodant le quotient, pour
-//    que le calcul futur parte d'une base cohérente.
-//
-// Encodage du snapshot : on stocke directement le quotient pré-calculé
-// dans un champ { _snapshot: true, quotient: 0.xx } que getQuotient()
-// sait lire et utiliser comme point de départ.
-
-function getAllTaskIds() {
-  const ids = [];
-  data.value.sites.forEach((site) => site.sectors.forEach((sector) => sector.tasks.forEach((t) => ids.push(t.id))));
-  return ids;
-}
-
-function computeCleanStats() {
-  const store = getStorage();
-  const week = currentWeek.value;
-  let total = 0,
-    toDelete = 0,
-    toKeep = 0,
-    photos = 0,
-    savedBytes = 0;
-
-  for (const [k, v] of Object.entries(store)) {
-    total++;
-    const entryWeek = k.split("::")[1];
-    if (entryWeek !== week) {
-      toDelete++;
-      const str = JSON.stringify(v);
-      savedBytes += str.length;
-      if (v.photo) photos++;
-    } else {
-      toKeep++;
-    }
-  }
-
-  cleanStats.value = {
-    total,
-    toDelete,
-    toKeep,
-    photos,
-    savedKB: Math.round(savedBytes / 1024),
-  };
-}
-
-function openCleanModal() {
-  computeCleanStats();
-  showCleanModal.value = true;
-}
-
-function runClean() {
-  const store = getStorage();
-  const week = currentWeek.value;
-  const taskIds = getAllTaskIds();
-  const newStore = {};
-
-  // Conserver la semaine courante telle quelle
-  for (const [k, v] of Object.entries(store)) {
-    const entryWeek = k.split("::")[1];
-    if (entryWeek === week) newStore[k] = v;
-  }
-
-  // Pour chaque tâche connue : si elle avait un historique dans les semaines
-  // passées (hors snapshot), créer/mettre à jour une entrée snapshot
-  taskIds.forEach((taskId) => {
-    const history = historyFor(taskId).filter((e) => e.rating !== "na" && !e._snapshot);
-    if (!history.length) return;
-
-    // Calculer le quotient AVANT suppression (histoire complète)
-    const q = getQuotient(taskId);
-
-    // La clé snapshot utilise une semaine virtuelle antérieure à toutes
-    // pour qu'elle soit toujours en fin d'historique dans les futurs calculs
-    const snapKey = `${taskId}::_snapshot`;
-    newStore[snapKey] = {
-      _snapshot: true,
-      quotient: q,
-      // On encode le quotient comme rating pondéré neutre
-      // pour que getQuotient() l'intègre directement
-      rating: q >= 0.7 ? "ok" : q >= 0.4 ? "warn" : "ko",
-      comment: `[Snapshot quotient: ${(q * 100).toFixed(0)}%]`,
-    };
-  });
-
-  saveStorage(newStore);
-  showCleanModal.value = false;
-  // Forcer recalcul Vue
-  currentSector.value = { ...currentSector.value };
-}
-
 // ── EXPORT ────────────────────────────────────────────────────────────
 function buildSectorData(site, sector, week) {
   const store = getStorage();
@@ -987,28 +848,19 @@ function buildXlsxWithPhotos(entries, filename) {
   XLSX.writeFile(wb, filename);
 }
 
-function exportSectorDirect(format) {
+function exportSectorDirect() {
   if (!currentSector.value || !currentSite.value) return;
   const site = currentSite.value;
   const sector = currentSector.value;
   const week = currentWeek.value;
-  const slug = `${site.id}_${sector.id}_${week}`;
-
-  if (format === "csv") {
-    const rows = buildSectorData(site, sector, week).map((d) => ({
-      ...d.row,
-      Photo: d.photo ? d.photo : "—", // data URI dans le CSV
-    }));
-    downloadCSV(rows, `${slug}.csv`);
-  } else if (format === "xlsx") {
-    buildXlsxWithPhotos([{ site, sector, week }], `${slug}.xlsx`);
-  }
+  const slug = `${site.name}_${sector.name}_${week}`;
+  buildXlsxWithPhotos([{ site, sector, week }], `${slug}.xlsx`);
 }
 
 function exportSite(site) {
   const week = currentWeek.value;
   const entries = site.sectors.map((sector) => ({ site, sector, week }));
-  buildXlsxWithPhotos(entries, `${site.id}_${week}.xlsx`);
+  buildXlsxWithPhotos(entries, `${site.name}_${week}.xlsx`);
 }
 
 function exportAll() {
@@ -1016,17 +868,6 @@ function exportAll() {
   const entries = [];
   data.value.sites.forEach((site) => site.sectors.forEach((sector) => entries.push({ site, sector, week })));
   buildXlsxWithPhotos(entries, `rapport_global_${week}.xlsx`);
-}
-
-function downloadCSV(rows, filename) {
-  if (!rows.length) return;
-  const headers = Object.keys(rows[0]);
-  const lines = [headers.join(";")];
-  rows.forEach((row) => {
-    lines.push(headers.map((h) => `"${(row[h] || "").toString().replace(/"/g, '""')}"`).join(";"));
-  });
-  const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
-  triggerDownload(blob, filename);
 }
 
 // ── CONFIG FUNCTIONS ──────────────────────────────────────────────────
@@ -1491,6 +1332,7 @@ onMounted(async () => {
   overflow: hidden;
   transition: opacity var(--sidebar-transition);
   margin-top: auto;
+	height: 55px;
 }
 
 .sidebar.collapsed .sidebar-footer {
@@ -1567,7 +1409,6 @@ onMounted(async () => {
   gap: 12px;
   position: sticky;
   top: 0;
-  background: var(--bg);
   z-index: 10;
   flex-shrink: 0;
 }
@@ -1627,6 +1468,12 @@ onMounted(async () => {
   align-items: center;
   flex-wrap: wrap;
   flex-shrink: 0;
+  justify-content: end;
+}
+
+.header-actions .btn-primary {
+  width: 100%;
+  max-width: 12rem;
 }
 
 .btn {
@@ -2147,7 +1994,6 @@ onMounted(async () => {
   gap: 12px;
   position: sticky;
   top: 0;
-  background: var(--bg);
   z-index: 10;
   flex-shrink: 0;
 }
@@ -2641,9 +2487,6 @@ textarea.modal-input {
   }
   .header-actions {
     flex-direction: column;
-  }
-  .header-actions .btn-primary {
-    width: 100%;
   }
   .rating-group {
     flex-direction: column;

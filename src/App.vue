@@ -61,7 +61,7 @@ onUnmounted(() => {
   --mono: "Space Mono", monospace;
   --sans: "DM Sans", sans-serif;
   --sidebar-w: 260px;
-  --sidebar-collapsed-w: 52px;
+  --sidebar-collapsed-w: 70px;
   --sidebar-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -209,8 +209,19 @@ input:focus {
 }
 
 .main-logo {
-  margin: auto;
-  padding-bottom: 4rem;
-  transform: scale(4);
+	margin: auto;
+	padding-bottom: 4rem;
+	transform: scale(4);
+}
+
+@media (max-width: 900px) {
+	.auth-page {
+		width: 100vw;
+		min-width: unset;
+	}
+
+	.main-logo {
+		display: none;
+	}
 }
 </style>

@@ -5,7 +5,7 @@
       <div class="avatar-placeholder" v-else>
         {{ initials }}
       </div>
-      <div v-if="open" class="user-details">
+      <div v-if="!open" class="user-details">
         <span class="user-name">{{ displayName }}</span>
         <span class="user-email">{{ user.email }}</span>
       </div>
@@ -69,8 +69,6 @@ async function handleLogout() {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 8px;
-  background: var(--bg);
 }
 
 .user-info {
@@ -127,6 +125,7 @@ async function handleLogout() {
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   white-space: nowrap;
+	width: 100%;
 }
 
 .btn-logout:hover:not(:disabled) {

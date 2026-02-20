@@ -2637,6 +2637,11 @@
             const saved = loadConfig();
             data.value = saved?.sites ? saved : JSON.parse(JSON.stringify(DEFAULT_DATA));
 
+						//TMP:
+            if (!data.value.agents) {
+              data.value.agents = [];
+            }
+
             // Ouvrir tous les sites dans la sidebar
             data.value.sites.forEach((s) => openSites.add(s.id));
 

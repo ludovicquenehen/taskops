@@ -1182,9 +1182,9 @@
         border-right: none;
         white-space: nowrap;
       }
-			.nav-tab.big {
-				font-size: 1.5rem;
-			}
+      .nav-tab.big {
+        font-size: 1.5rem;
+      }
       .nav-tab:hover {
         color: var(--text);
       }
@@ -2333,6 +2333,7 @@
                   Secteur: sector.name,
                   Semaine: week,
                   Tâche: task.title,
+                  Agent: getAgent(sector.agent),
                   "Description courte": task.shortDesc,
                   "Description longue": task.longDesc,
                   Statut: entry.rating ? entry.rating.toUpperCase() : "",
@@ -2397,6 +2398,7 @@
                   Site: site.name,
                   Secteur: sector.name,
                   Tâche: task?.title || d.taskId,
+                  Agent: getAgent(sector.agent),
                   Semaine: week,
                   "Image (base64)": d.photo, // data URI complet — ouvrable dans un navigateur
                 });

@@ -219,6 +219,7 @@
           <div class="header-actions">
             <button class="btn" @click="exportSectorDirect('csv')">CSV</button>
             <button class="btn" @click="exportSectorDirect('xlsx')">XLSX</button>
+            <UserMenu />
           </div>
         </header>
 
@@ -528,12 +529,9 @@
 
 <script setup>
 import { ref, computed, reactive, onMounted } from "vue";
-import { supabase } from '@/lib/supabase'
+import { supabase, getUser } from "@/lib/supabase";
+import UserMenu from "@/components/UserMenu.vue";
 
-// ─── SUPABASE ───
-const FIXED_ID = "00000000-0000-0000-0000-000000000001";
-
-// ─── CONFIG PAR DÉFAUT (utilisée uniquement si aucune config sauvegardée) ───
 const DEFAULT_DATA = {
   sites: [],
   agents: [],
@@ -561,34 +559,31 @@ const agentForm = reactive({ firstname: "", lastname: "" });
 const cleanStats = ref({ total: 0, toDelete: 0, toKeep: 0, photos: 0, savedKB: 0 });
 const fileInputs = {};
 const cameraInputs = {};
-const storageKey = "taskops_v2";
-const configKey = "taskops_config_v1"; // Clé séparée — jamais nettoyée
+const userId = ref(null);
+const storageKey = computed(() => `${userId.value}-history`);
+const configKey = computed(() => `${userId.value}`); // Clé séparée — jamais nettoyée
 
 // ── CONFIG (localStorage séparé, jamais nettoyé) ─────────────────────
 async function loadConfig() {
   try {
-    const { data: server } = await supabase.from("app_data").select("*").eq("id", FIXED_ID).single();
-
-    console.log(server.data.sites);
-    if (server?.data.sites) {
-      localStorage.setItem(configKey, JSON.stringify(server.data));
-    }
-    const raw = localStorage.getItem(configKey);
-    if (raw) return JSON.parse(raw);
+    const { data: server } = await supabase.from("app_data").select("*").eq("user", userId.value).single();
+    localStorage.setItem(configKey.value, JSON.stringify(server.data));
+    return server.data;
   } catch {}
   return null;
 }
 
 async function saveConfig(cfg) {
-  localStorage.setItem(configKey, JSON.stringify(cfg));
+  localStorage.setItem(configKey.value, JSON.stringify(cfg));
 
   await supabase
     .from("app_data")
-    .update({
+    .upsert({
       data: data.value,
       last_modified_at: Date.now(),
+      user: userId.value,
     })
-    .eq("id", FIXED_ID);
+    .eq("user", userId.value);
 }
 
 window.addEventListener("online", saveConfig);
@@ -617,16 +612,35 @@ const availableWeeks = computed(() => {
 const currentWeek = ref(availableWeeks.value[0]);
 
 // ── STORAGE ───────────────────────────────────────────────────────────
-function loadStorage() {
+async function loadStorage() {
   try {
-    return JSON.parse(localStorage.getItem(storageKey) || "{}");
-  } catch {
-    return {};
-  }
+    const { data: server } = await supabase.from("app_rating").select("*").eq("user", userId.value).single();
+    localStorage.setItem(storageKey.value, JSON.stringify(server.data));
+  } catch {}
+  return null;
 }
 
-function saveStorage(s) {
-  localStorage.setItem(storageKey, JSON.stringify(s));
+function getStorage() {
+  try {
+    //const { data: server } = await supabase.from("app_rating").select("*").eq("user", userId.value).single();
+    //localStorage.setItem(storageKey.value, JSON.stringify(server.data));
+    //return server.data;
+    return JSON.parse(localStorage.getItem(storageKey.value));
+  } catch {}
+  return null;
+}
+
+async function saveStorage(cfg) {
+  localStorage.setItem(storageKey.value, JSON.stringify(cfg));
+
+  await supabase
+    .from("app_rating")
+    .upsert({
+      data: cfg,
+      last_modified_at: Date.now(),
+      user: userId.value,
+    })
+    .eq("user", userId.value);
 }
 
 function entryKey(taskId, week) {
@@ -634,11 +648,11 @@ function entryKey(taskId, week) {
 }
 
 function getEntry(taskId) {
-  return loadStorage()[entryKey(taskId, currentWeek.value)] || { rating: null, comment: "" };
+  return getStorage()[entryKey(taskId, currentWeek.value)] || { rating: null, comment: "" };
 }
 
 function setRating(taskId, rating) {
-  const store = loadStorage();
+  const store = getStorage();
   const key = entryKey(taskId, currentWeek.value);
   if (!store[key]) store[key] = { rating: null, comment: "" };
   store[key].rating = store[key].rating === rating ? null : rating;
@@ -647,7 +661,7 @@ function setRating(taskId, rating) {
 }
 
 function setComment(taskId, comment) {
-  const store = loadStorage();
+  const store = getStorage();
   const key = entryKey(taskId, currentWeek.value);
   if (!store[key]) store[key] = { rating: null, comment: "" };
   store[key].comment = comment;
@@ -656,7 +670,7 @@ function setComment(taskId, comment) {
 
 // ── HISTORY / QUOTIENT ────────────────────────────────────────────────
 function historyFor(taskId) {
-  const store = loadStorage();
+  const store = getStorage();
   return Object.entries(store)
     .filter(([k, v]) => k.startsWith(taskId + "::") && v.rating)
     .map(([k, v]) => ({ week: k.split("::")[1], rating: v.rating, comment: v.comment || "" }))
@@ -759,7 +773,7 @@ function onFileChange(taskId, event) {
       c.height = img.height * r;
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
       const b64 = c.toDataURL("image/jpeg", 0.82);
-      const store = loadStorage();
+      const store = getStorage();
       const key = entryKey(taskId, currentWeek.value);
       if (!store[key]) store[key] = { rating: null, comment: "" };
       store[key].photo = b64;
@@ -773,7 +787,7 @@ function onFileChange(taskId, event) {
 }
 
 function removePhoto(taskId) {
-  const store = loadStorage();
+  const store = getStorage();
   const key = entryKey(taskId, currentWeek.value);
   if (store[key]) {
     delete store[key].photo;
@@ -802,7 +816,7 @@ function getAllTaskIds() {
 }
 
 function computeCleanStats() {
-  const store = loadStorage();
+  const store = getStorage();
   const week = currentWeek.value;
   let total = 0,
     toDelete = 0,
@@ -838,7 +852,7 @@ function openCleanModal() {
 }
 
 function runClean() {
-  const store = loadStorage();
+  const store = getStorage();
   const week = currentWeek.value;
   const taskIds = getAllTaskIds();
   const newStore = {};
@@ -879,7 +893,7 @@ function runClean() {
 
 // ── EXPORT ────────────────────────────────────────────────────────────
 function buildSectorData(site, sector, week) {
-  const store = loadStorage();
+  const store = getStorage();
   return sector.tasks.map((task) => {
     const entry = store[entryKey(task.id, week)] || { rating: null, comment: "" };
     const q = getQuotient(task.id);
@@ -1083,7 +1097,6 @@ function saveSectorModal() {
         sec.name = sectorName;
         sec.description = sectorForm.description;
         sec.agent = sectorForm.agent;
-        console.log(sectorForm);
         // Merge des tâches : conserver les ids existants quand possible
         sec.tasks = validTasks.map((t, i) => ({
           id: t.id || genId(`${sec.id}-t`),
@@ -1184,6 +1197,10 @@ function agentsSectors(agent) {
 
 // ── INIT ──────────────────────────────────────────────────────────────
 onMounted(async () => {
+  userId.value = (await getUser())?.id;
+
+  await loadStorage();
+
   // Charger la config depuis localStorage, ou utiliser DEFAULT_DATA
   const saved = await loadConfig();
   data.value = saved?.sites ? saved : JSON.parse(JSON.stringify(DEFAULT_DATA));
@@ -1204,49 +1221,7 @@ onMounted(async () => {
 });
 </script>
 
-<style>
-@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap");
-
-:root {
-  --bg: #0d0f14;
-  --bg2: #141720;
-  --bg3: #1c2030;
-  --border: #252a3a;
-  --text: #e8eaf0;
-  --text2: #8890a8;
-  --accent: #4f8cff;
-  --accent2: #6c3fff;
-  --ok: #22c97a;
-  --ko: #ff4f6a;
-  --warn: #ffb944;
-  --na: #8890a8;
-  --mono: "Space Mono", monospace;
-  --sans: "DM Sans", sans-serif;
-  --sidebar-w: 260px;
-  --sidebar-collapsed-w: 52px;
-  --sidebar-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
-  height: 100vh;
-  overflow: hidden;
-}
-
-#app {
-  display: flex;
-  width: 100%;
-  height: 100vh;
-}
-
+<style scoped>
 /* ════════════════════ SIDEBAR ════════════════════ */
 .sidebar {
   width: var(--sidebar-w);
@@ -1584,7 +1559,7 @@ body {
 }
 
 .main-header {
-  padding: 16px 24px 12px;
+  padding: 16px 12px 12px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: flex-start;

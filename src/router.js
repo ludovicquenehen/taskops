@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { supabase } from "@/lib/supabase";
+import { supabase, getUser } from "@/lib/supabase";
 
 // Views
 import LoginView from "@/views/auth/LoginView.vue";
@@ -50,12 +50,7 @@ const router = createRouter({
 
 // ─── Navigation Guard ────────────────────────────────────────────────────────
 router.beforeEach(async (to, from, next) => {
-  // Récupère la session Supabase courante
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  const isAuthenticated = !!session;
+  const isAuthenticated = !!(await getUser())?.id;
 
   // Route protégée → redirige vers /login si non connecté
   if (to.meta.requiresAuth && !isAuthenticated) {

@@ -56,9 +56,7 @@
         <div class="sidebar-footer">
           <button class="btn-export-all" @click="exportAll">⬇ EXPORT GLOBAL</button>
         </div>
-        <div class="sidebar-footer">
-          <UserMenu />
-        </div>
+        <UserMenu class="sidebar-user-menu" />
       </template>
       <template v-else>
         <div class="nav-tab-strip">
@@ -1354,6 +1352,12 @@ onMounted(async () => {
   transition: opacity var(--sidebar-transition);
   margin-top: auto;
   height: 55px;
+}
+
+.sidebar-user-menu {
+	padding: 10px 14px;
+  border-top: 1px solid var(--border);
+	height: 55px;
 }
 
 .sidebar.collapsed .sidebar-footer {

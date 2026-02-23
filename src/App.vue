@@ -105,15 +105,21 @@ body {
 }
 
 .auth-title {
-  font-size: 1.75rem;
-  font-weight: 700;
   margin-bottom: 0.25rem;
+	font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
 }
 
 .auth-subtitle {
   color: #666;
   margin-bottom: 2rem;
-  font-size: 0.95rem;
+	font-size: 0.95rem;
+  color: var(--text2);
+  letter-spacing: 0.04em;
 }
 
 .form-group {

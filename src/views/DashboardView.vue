@@ -1,404 +1,407 @@
 <template>
-  <!-- ── SIDEBAR OVERLAY (mobile) ── -->
-  <div class="sidebar-overlay" v-if="mobileOpen" @click="mobileOpen = false"></div>
+    <!-- ── SIDEBAR OVERLAY (mobile) ── -->
+    <div class="sidebar-overlay" v-if="mobileOpen" @click="mobileOpen = false"></div>
 
-  <!-- ── SIDEBAR ── -->
-  <aside class="sidebar" :class="{ collapsed: sidebarCollapsed, 'mobile-open': mobileOpen }">
-    <div class="sidebar-logo">
-      <div v-if="!sidebarCollapsed || mobileOpen" class="logo-content">
-        <div class="logo-text">TaskOps</div>
-        <div class="logo-sub">Suivi Hebdomadaire</div>
-      </div>
-      <button class="sidebar-toggle" @click="toggleSidebar" :title="sidebarCollapsed ? 'Déplier' : 'Replier'">
-        {{ sidebarCollapsed ? "»" : "«" }}
-      </button>
-    </div>
-
-    <template v-if="!sidebarCollapsed || mobileOpen">
-      <div class="nav-tab-strip">
-        <select class="week-select" v-model="currentWeek">
-          <option v-for="w in availableWeeks" :key="w" :value="w">{{ w }}</option>
-        </select>
-        <button class="nav-tab" :class="{ active: currentView === 'sector' }" @click="setView('sector')">🏢 Secteurs</button>
-        <button class="nav-tab" :class="{ active: currentView === 'agent' }" @click="setView('agent')">🥷 Agents</button>
-        <button class="nav-tab" :class="{ active: currentView === 'config' }" @click="setView('config')">⚙️ Configuration</button>
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed, 'mobile-open': mobileOpen }">
+      <div :class="['sidebar-logo', { collapsed: sidebarCollapsed }]">
+        <div v-if="!sidebarCollapsed || mobileOpen" class="logo-content">
+          <div class="logo-text">TaskOps</div>
+          <div class="logo-sub">Suivi Hebdomadaire</div>
+        </div>
+        <button class="sidebar-toggle" @click="toggleSidebar" :title="sidebarCollapsed ? 'Déplier' : 'Replier'">
+          {{ sidebarCollapsed ? "»" : "«" }}
+        </button>
       </div>
 
-      <nav class="sidebar-nav">
-        <template v-if="currentView === 'sector'">
-          <div class="site-group" v-for="site in data.sites" :key="site.id">
-            <div class="site-header" @click="toggleSite(site.id)">
-              <span class="site-chevron" :class="{ open: openSites.has(site.id) }">▶</span>
-              <span class="site-name">{{ site.name }}</span>
-              <span class="site-badge">{{ site.sectors.length }}</span>
-              <button class="site-export-btn" @click.stop="exportSite(site)" title="Export XLSX du site">XLSX</button>
-            </div>
-            <transition name="slide">
-              <div v-if="openSites.has(site.id)">
-                <div
-                  v-for="sector in site.sectors"
-                  :key="sector.id"
-                  class="nav-item"
-                  :class="{ active: currentSector?.id === sector.id }"
-                  @click="selectSector(sector, site)"
-                >
-                  <div class="nav-completion" :style="{ background: completionColor(sector) }"></div>
-                  <span class="nav-item-name">{{ sector.name }}</span>
-                  <span class="nav-item-badge">{{ completionCount(sector) }}/{{ sector.tasks.length }}</span>
-									<button class="site-export-btn" title="Export XLSX du secteur" @click="exportSectorDirect()">XLSX</button>
-                </div>
-              </div>
-            </transition>
-          </div>
-        </template>
-      </nav>
-
-      <div class="sidebar-footer">
-        <button class="btn-export-all" @click="exportAll">⬇ EXPORT GLOBAL</button>
-      </div>
-      <div class="sidebar-footer">
-        <UserMenu />
-      </div>
-    </template>
-    <template v-else>
-      <div class="nav-tab-strip">
-        <select class="week-select" v-model="currentWeek">
-          <option v-for="w in availableWeeks" :key="w" :value="w">{{ w.split("-")[1] }}</option>
-        </select>
-        <button class="nav-tab" :class="{ active: currentView === 'sector' }" @click="setView('sector')">🏢</button>
-        <button class="nav-tab" :class="{ active: currentView === 'agent' }" @click="setView('agent')">🥷</button>
-        <button class="nav-tab" :class="{ active: currentView === 'config' }" @click="setView('config')">⚙️</button>
-      </div>
-    </template>
-  </aside>
-
-  <!-- ── MAIN ── -->
-  <main class="main">
-    <!-- ══ CONFIG VIEW ══ -->
-    <template v-if="currentView === 'config'">
-      <div class="config-view">
-        <div class="config-header">
-          <button class="btn-hamburger" @click="mobileOpen = true">☰</button>
-          <div>
-            <div class="config-title">Configuration</div>
-            <div class="config-subtitle">Gérer les sites, secteurs, tâches et agents</div>
-          </div>
-          <div class="header-actions">
-            <button class="btn-primary" @click="openAddModal('agent')">+ Ajouter un agent</button>
-            <button class="btn-primary" @click="openAddModal('sector')">+ Ajouter un secteur</button>
-          </div>
+      <template v-if="!sidebarCollapsed || mobileOpen">
+        <div class="nav-tab-strip">
+          <select class="week-select" v-model="currentWeek">
+            <option v-for="w in availableWeeks" :key="w" :value="w">{{ w }}</option>
+          </select>
+          <button class="nav-tab" :class="{ active: currentView === 'sector' }" @click="setView('sector')">🏢 Secteurs</button>
+          <button class="nav-tab" :class="{ active: currentView === 'agent' }" @click="setView('agent')">🥷 Agents</button>
+          <button class="nav-tab" :class="{ active: currentView === 'config' }" @click="setView('config')">⚙️ Configuration</button>
         </div>
 
-        <div class="config-table-wrap">
-          <table class="config-table">
-            <thead>
-              <tr>
-                <th style="width: 14%">Site</th>
-                <th style="width: 16%">Secteur</th>
-                <th style="width: 12%">Agent</th>
-                <th>Tâches</th>
-                <th class="th-actions">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template v-for="site in data.sites" :key="site.id">
-                <template v-for="sector in site.sectors" :key="sector.id">
+        <nav class="sidebar-nav">
+          <template v-if="currentView === 'sector'">
+            <div class="site-group" v-for="site in data.sites" :key="site.id">
+              <div class="site-header" @click="toggleSite(site.id)">
+                <span class="site-chevron" :class="{ open: openSites.has(site.id) }">▶</span>
+                <span class="site-name">{{ site.name }}</span>
+                <span class="site-badge">{{ site.sectors.length }}</span>
+                <button class="site-export-btn" @click.stop="exportSite(site)" title="Export XLSX du site">XLSX</button>
+              </div>
+              <transition name="slide">
+                <div v-if="openSites.has(site.id)">
+                  <div
+                    v-for="sector in site.sectors"
+                    :key="sector.id"
+                    class="nav-item"
+                    :class="{ active: currentSector?.id === sector.id }"
+                    @click="selectSector(sector, site)"
+                  >
+                    <div class="nav-completion" :style="{ background: completionColor(sector) }"></div>
+                    <span class="nav-item-name">{{ sector.name }}</span>
+                    <span class="nav-item-badge">{{ completionCount(sector) }}/{{ sector.tasks.length }}</span>
+                    <button class="site-export-btn" title="Export XLSX du secteur" @click="exportSectorDirect()">XLSX</button>
+                  </div>
+                </div>
+              </transition>
+            </div>
+          </template>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="btn-export-all" @click="exportAll">⬇ EXPORT GLOBAL</button>
+        </div>
+        <div class="sidebar-footer">
+          <UserMenu />
+        </div>
+      </template>
+      <template v-else>
+        <div class="nav-tab-strip">
+          <select class="week-select" v-model="currentWeek">
+            <option v-for="w in availableWeeks" :key="w" :value="w">{{ w.split("-")[1] }}</option>
+          </select>
+          <button class="nav-tab" :class="{ active: currentView === 'sector' }" @click="setView('sector')">🏢</button>
+          <button class="nav-tab" :class="{ active: currentView === 'agent' }" @click="setView('agent')">🥷</button>
+          <button class="nav-tab" :class="{ active: currentView === 'config' }" @click="setView('config')">⚙️</button>
+        </div>
+      </template>
+    </aside>
+
+    <!-- ── MAIN ── -->
+		<Loader v-if="loading" fullscreen label="Chargement…" />
+    <main v-else class="main">
+      <!-- ══ CONFIG VIEW ══ -->
+      <template v-if="currentView === 'config'">
+        <div class="config-view">
+          <div class="config-header">
+            <button class="btn-hamburger" @click="mobileOpen = true">☰</button>
+            <div>
+              <div class="config-title">Configuration</div>
+              <div class="config-subtitle">Gérer les sites, secteurs, tâches et agents</div>
+            </div>
+            <div class="header-actions">
+              <button class="btn-primary" @click="openAddModal('agent')">+ Ajouter un agent</button>
+              <button class="btn-primary" @click="openAddModal('sector')">+ Ajouter un secteur</button>
+            </div>
+          </div>
+
+          <div class="config-table-wrap">
+            <table class="config-table">
+              <thead>
+                <tr>
+                  <th style="width: 14%">Site</th>
+                  <th style="width: 16%">Secteur</th>
+                  <th style="width: 12%">Agent</th>
+                  <th>Tâches</th>
+                  <th class="th-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template v-for="site in data.sites" :key="site.id">
+                  <template v-for="sector in site.sectors" :key="sector.id">
+                    <tr class="config-row">
+                      <td>
+                        <div class="config-cell-site">{{ site.name }}</div>
+                      </td>
+                      <td>
+                        <div class="config-cell-sector">{{ sector.name }}</div>
+                        <div style="font-size: 11px; color: var(--text2); margin-top: 2px">{{ sector.description }}</div>
+                      </td>
+                      <td>
+                        <div class="config-cell-agent">{{ getAgent(sector.agent) || "—" }}</div>
+                      </td>
+                      <td>
+                        <div class="cell-chip">
+                          <span
+                            class="chip"
+                            v-for="t in sector.tasks"
+                            :key="t.id"
+                            @click="
+                              currentSector = sector;
+                              currentView = 'sector';
+                              sidebarTab = 'nav';
+                            "
+                            >{{ t.title }}</span
+                          >
+                        </div>
+                      </td>
+                      <td>
+                        <div class="config-row-actions">
+                          <button class="btn-icon" @click="openEditModal('sector', { site, sector })" title="Éditer">✎</button>
+                          <button class="btn-icon" @click="duplicateSector({ site, sector })" title="Dupliquer">⧉</button>
+                          <button class="btn-icon del" @click="deleteSector(site, sector)" title="Supprimer">✕</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </template>
+
+      <template v-if="currentView === 'agent'">
+        <div class="config-view">
+          <div class="config-header">
+            <button class="btn-hamburger" @click="mobileOpen = true">☰</button>
+            <div>
+              <div class="config-title">Agents</div>
+              <div class="config-subtitle">Gérer les agents</div>
+            </div>
+            <div class="header-actions">
+              <button class="btn-primary" @click="openAddModal('agent')">+ Ajouter un agent</button>
+            </div>
+          </div>
+          <div class="config-table-wrap">
+            <table class="config-table">
+              <thead>
+                <tr>
+                  <th style="width: 30%">Nom</th>
+                  <th style="width: 30%">Prénom</th>
+                  <th style="width: 30%">Secteurs</th>
+                  <th class="th-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template v-for="agent in data.agents" :key="agent.id">
                   <tr class="config-row">
                     <td>
-                      <div class="config-cell-site">{{ site.name }}</div>
+                      <div class="config-cell-site">{{ agent.lastname }}</div>
                     </td>
                     <td>
-                      <div class="config-cell-sector">{{ sector.name }}</div>
-                      <div style="font-size: 11px; color: var(--text2); margin-top: 2px">{{ sector.description }}</div>
+                      <div class="config-cell-sector">{{ agent.firstname }}</div>
                     </td>
                     <td>
-                      <div class="config-cell-agent">{{ getAgent(sector.agent) || "—" }}</div>
-                    </td>
-                    <td>
-                      <div class="cell-chip">
+                      <div class="sector-cell">
                         <span
                           class="chip"
-                          v-for="t in sector.tasks"
-                          :key="t.id"
+                          v-for="sector in agentsSectors(agent)"
+                          :key="sector.id"
                           @click="
                             currentSector = sector;
                             currentView = 'sector';
                             sidebarTab = 'nav';
                           "
-                          >{{ t.title }}</span
+                          >{{ sector.name }}</span
                         >
                       </div>
                     </td>
                     <td>
                       <div class="config-row-actions">
-                        <button class="btn-icon" @click="openEditModal('sector', { site, sector })" title="Éditer">✎</button>
-                        <button class="btn-icon del" @click="deleteSector(site, sector)" title="Supprimer">✕</button>
+                        <button class="btn-icon" @click="openEditModal('agent', { agent })" title="Éditer">✎</button>
+                        <button class="btn-icon del" @click="deleteAgent(agent)" title="Supprimer">✕</button>
                       </div>
                     </td>
                   </tr>
                 </template>
-              </template>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </template>
-
-    <template v-if="currentView === 'agent'">
-      <div class="config-view">
-        <div class="config-header">
-          <button class="btn-hamburger" @click="mobileOpen = true">☰</button>
-          <div>
-            <div class="config-title">Agents</div>
-            <div class="config-subtitle">Gérer les agents</div>
-          </div>
-          <div class="header-actions">
-            <button class="btn-primary" @click="openAddModal('agent')">+ Ajouter un agent</button>
+              </tbody>
+            </table>
           </div>
         </div>
-        <div class="config-table-wrap">
-          <table class="config-table">
-            <thead>
-              <tr>
-                <th style="width: 30%">Nom</th>
-                <th style="width: 30%">Prénom</th>
-                <th style="width: 30%">Secteurs</th>
-                <th class="th-actions">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template v-for="agent in data.agents" :key="agent.id">
-                <tr class="config-row">
-                  <td>
-                    <div class="config-cell-site">{{ agent.lastname }}</div>
-                  </td>
-                  <td>
-                    <div class="config-cell-sector">{{ agent.firstname }}</div>
-                  </td>
-                  <td>
-                    <div class="sector-cell">
-                      <span
-                        class="chip"
-                        v-for="sector in agentsSectors(agent)"
-                        :key="sector.id"
-                        @click="
-                          currentSector = sector;
-                          currentView = 'sector';
-                          sidebarTab = 'nav';
-                        "
-                        >{{ sector.name }}</span
-                      >
-                    </div>
-                  </td>
-                  <td>
-                    <div class="config-row-actions">
-                      <button class="btn-icon" @click="openEditModal('agent', { agent })" title="Éditer">✎</button>
-                      <button class="btn-icon del" @click="deleteAgent(agent)" title="Supprimer">✕</button>
-                    </div>
-                  </td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </template>
+      </template>
 
-    <!-- ══ SECTOR VIEW ══ -->
-    <template v-if="currentView === 'sector'">
-      <template v-if="currentSector">
-        <header class="main-header">
-          <div style="display: flex; align-items: center; gap: 10px; min-width: 0">
-            <button class="btn-hamburger" @click="mobileOpen = true">☰</button>
-            <div style="min-width: 0">
-              <div class="main-breadcrumb">
-                <span class="bc-site">{{ currentSite?.name }}</span> / {{ currentSector.name }}
-              </div>
-              <div class="main-week">
-                <div>
-                  <div class="main-title">{{ currentSector.name }}</div>
-                  <div class="main-subtitle">{{ currentSector.description }}</div>
+      <!-- ══ SECTOR VIEW ══ -->
+      <template v-if="currentView === 'sector'">
+        <template v-if="currentSector">
+          <header class="main-header">
+            <div style="display: flex; align-items: center; gap: 10px; min-width: 0">
+              <button class="btn-hamburger" @click="mobileOpen = true">☰</button>
+              <div style="min-width: 0">
+                <div class="main-breadcrumb">
+                  <span class="bc-site">{{ currentSite?.name }}</span> / {{ currentSector.name }}
+                </div>
+                <div class="main-week">
+                  <div>
+                    <div class="main-title">{{ currentSector.name }}</div>
+                    <div class="main-subtitle">{{ currentSector.description }}</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <div class="stats-strip">
-          <div class="stat-card">
-            <div class="stat-value">{{ currentSector.tasks.length }}</div>
-            <div class="stat-label">Total</div>
+          <div class="stats-strip">
+            <div class="stat-card">
+              <div class="stat-value">{{ currentSector.tasks.length }}</div>
+              <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-card stat-ok">
+              <div class="stat-value">{{ ratingCount("ok") }}</div>
+              <div class="stat-label">OK</div>
+            </div>
+            <div class="stat-card stat-ko">
+              <div class="stat-value">{{ ratingCount("ko") }}</div>
+              <div class="stat-label">KO</div>
+            </div>
+            <div class="stat-card stat-warn">
+              <div class="stat-value">{{ ratingCount("warn") }}</div>
+              <div class="stat-label">WARN</div>
+            </div>
+            <div class="stat-card stat-na">
+              <div class="stat-value">{{ ratingCount("na") }}</div>
+              <div class="stat-label">N/A</div>
+            </div>
           </div>
-          <div class="stat-card stat-ok">
-            <div class="stat-value">{{ ratingCount("ok") }}</div>
-            <div class="stat-label">OK</div>
-          </div>
-          <div class="stat-card stat-ko">
-            <div class="stat-value">{{ ratingCount("ko") }}</div>
-            <div class="stat-label">KO</div>
-          </div>
-          <div class="stat-card stat-warn">
-            <div class="stat-value">{{ ratingCount("warn") }}</div>
-            <div class="stat-label">WARN</div>
-          </div>
-          <div class="stat-card stat-na">
-            <div class="stat-value">{{ ratingCount("na") }}</div>
-            <div class="stat-label">N/A</div>
-          </div>
-        </div>
 
-        <div class="table-wrap">
-          <table class="task-table">
-            <thead>
-              <tr>
-                <th class="col-task">Tâche</th>
-                <th class="col-agent">Agent</th>
-                <th class="col-rating">Statut</th>
-                <th class="col-comment">Commentaire</th>
-                <th class="col-quotient">Quotient</th>
-                <th class="col-photo">Photo</th>
-                <th class="col-history">Historique</th>
-              </tr>
-            </thead>
-            <tbody>
-              <template v-for="task in currentSector.tasks" :key="task.id">
-                <tr class="task-row">
-                  <!-- TÂCHE -->
-                  <td>
-                    <div class="task-intitule">{{ task.title }}</div>
-                    <div class="task-desc-short">{{ task.shortDesc }}</div>
-                    <button class="task-desc-long-btn" @click="toggleLongDesc(task.id)">
-                      {{ expandedDesc.has(task.id) ? "▲ moins" : "▼ détails" }}
-                    </button>
-                    <transition name="fade">
-                      <div v-if="expandedDesc.has(task.id)" class="task-desc-long">{{ task.longDesc }}</div>
-                    </transition>
-                  </td>
-                  <!-- AGENT -->
-                  <td>
-                    <div style="font-size: 12px; color: var(--text2)">{{ getAgent(currentSector.agent) || "—" }}</div>
-                  </td>
-                  <!-- RATING -->
-                  <td>
-                    <div class="rating-group">
-                      <button
-                        v-for="r in ['ok', 'ko', 'warn', 'na']"
-                        :key="r"
-                        class="rating-btn"
-                        :class="[r, { active: getEntry(task.id).rating === r }]"
-                        @click="setRating(task.id, r)"
-                      >
-                        {{ r.toUpperCase() }}
+          <div class="table-wrap">
+            <table class="task-table">
+              <thead>
+                <tr>
+                  <th class="col-task">Tâche</th>
+                  <th class="col-agent">Agent</th>
+                  <th class="col-rating">Statut</th>
+                  <th class="col-comment">Commentaire</th>
+                  <th class="col-quotient">Quotient</th>
+                  <th class="col-photo">Photo</th>
+                  <th class="col-history">Historique</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template v-for="task in currentSector.tasks" :key="task.id">
+                  <tr class="task-row">
+                    <!-- TÂCHE -->
+                    <td>
+                      <div class="task-intitule">{{ task.title }}</div>
+                      <div class="task-desc-short">{{ task.shortDesc }}</div>
+                      <button class="task-desc-long-btn" @click="toggleLongDesc(task.id)">
+                        {{ expandedDesc.has(task.id) ? "▲ moins" : "▼ détails" }}
                       </button>
-                    </div>
-                  </td>
-                  <!-- COMMENT -->
-                  <td>
-                    <textarea
-                      class="comment-input"
-                      placeholder="Commentaire"
-                      :value="getEntry(task.id).comment"
-                      @input="setComment(task.id, $event.target.value)"
-                      rows="1"
-                    ></textarea>
-                  </td>
-                  <!-- QUOTIENT -->
-                  <td>
-                    <div class="quotient-cell">
-                      <div class="quotient-value">
-                        <span :style="{ color: quotientColor(getQuotient(task.id)) }"> {{ (getQuotient(task.id) * 100).toFixed(0) }}% </span>
-                        <span :class="trendClass(task.id)">{{ trendIcon(task.id) }}</span>
+                      <transition name="fade">
+                        <div v-if="expandedDesc.has(task.id)" class="task-desc-long">{{ task.longDesc }}</div>
+                      </transition>
+                    </td>
+                    <!-- AGENT -->
+                    <td>
+                      <div style="font-size: 12px; color: var(--text2)">{{ getAgent(currentSector.agent) || "—" }}</div>
+                    </td>
+                    <!-- RATING -->
+                    <td>
+                      <div class="rating-group">
+                        <button
+                          v-for="r in ['ok', 'ko', 'warn', 'na']"
+                          :key="r"
+                          class="rating-btn"
+                          :class="[r, { active: getEntry(task.id).rating === r }]"
+                          @click="setRating(task.id, r)"
+                        >
+                          {{ r.toUpperCase() }}
+                        </button>
                       </div>
-                      <div class="quotient-bar-bg">
-                        <div
-                          class="quotient-bar"
-                          :style="{
-                            width: getQuotient(task.id) * 100 + '%',
-                            background: quotientColor(getQuotient(task.id)),
-                          }"
-                        ></div>
-                      </div>
-                    </div>
-                  </td>
-                  <!-- PHOTO -->
-                  <td>
-                    <div class="photo-cell">
-                      <img
-                        v-if="getEntry(task.id).photo"
-                        :src="getEntry(task.id).photo"
-                        class="photo-thumb"
-                        @click="lightboxSrc = getEntry(task.id).photo"
-                        title="Agrandir"
-                      />
-                      <div class="photo-actions">
-                        <button class="btn-photo" @click="triggerCamera(task.id)" title="Caméra">📷</button>
-                        <button class="btn-photo" @click="triggerFileInput(task.id)" title="Fichier">📁</button>
-                        <button v-if="getEntry(task.id).photo" class="btn-photo btn-photo-del" @click="removePhoto(task.id)">✕</button>
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        :ref="
-                          (el) => {
-                            if (el) fileInputs[task.id] = el;
-                          }
-                        "
-                        style="display: none"
-                        @change="onFileChange(task.id, $event)"
-                      />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        :ref="
-                          (el) => {
-                            if (el) cameraInputs[task.id] = el;
-                          }
-                        "
-                        style="display: none"
-                        @change="onFileChange(task.id, $event)"
-                      />
-                    </div>
-                  </td>
-                  <!-- HISTORY -->
-                  <td>
-                    <button class="history-toggle" @click="toggleHistory(task.id)">
-                      {{ expandedHistory.has(task.id) ? "▲" : "▼" }} {{ historyFor(task.id).filter((e) => e.week !== "_snapshot").length }}
-                      entrée(s)
-                    </button>
-                    <transition name="fade">
-                      <div v-if="expandedHistory.has(task.id)" class="history-panel">
-                        <div class="history-title">Historique</div>
-                        <div v-if="!historyFor(task.id).length" style="font-size: 11px; color: var(--text2)">Aucun historique</div>
-                        <div class="history-entries">
-                          <div v-for="entry in historyFor(task.id)" :key="entry.week" class="history-entry">
-                            <template v-if="entry.week !== '_snapshot'">
-                              <span class="history-week">{{ entry.week }}</span>
-                              <span class="history-rating" :class="entry.rating">{{ entry.rating.toUpperCase() }}</span>
-                              <span class="history-comment">{{ entry.comment || "—" }}</span>
-                            </template>
-                          </div>
+                    </td>
+                    <!-- COMMENT -->
+                    <td>
+                      <textarea
+                        class="comment-input"
+                        placeholder="Commentaire"
+                        :value="getEntry(task.id).comment"
+                        @input="setComment(task.id, $event.target.value)"
+                        rows="1"
+                      ></textarea>
+                    </td>
+                    <!-- QUOTIENT -->
+                    <td>
+                      <div class="quotient-cell">
+                        <div class="quotient-value">
+                          <span :style="{ color: quotientColor(getQuotient(task.id)) }"> {{ (getQuotient(task.id) * 100).toFixed(0) }}% </span>
+                          <span :class="trendClass(task.id)">{{ trendIcon(task.id) }}</span>
+                        </div>
+                        <div class="quotient-bar-bg">
+                          <div
+                            class="quotient-bar"
+                            :style="{
+                              width: getQuotient(task.id) * 100 + '%',
+                              background: quotientColor(getQuotient(task.id)),
+                            }"
+                          ></div>
                         </div>
                       </div>
-                    </transition>
-                  </td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
+                    </td>
+                    <!-- PHOTO -->
+                    <td>
+                      <div class="photo-cell">
+                        <img
+                          v-if="getEntry(task.id).photo"
+                          :src="getEntry(task.id).photo"
+                          class="photo-thumb"
+                          @click="lightboxSrc = getEntry(task.id).photo"
+                          title="Agrandir"
+                        />
+                        <div class="photo-actions">
+                          <button class="btn-photo" @click="triggerCamera(task.id)" title="Caméra">📷</button>
+                          <button class="btn-photo" @click="triggerFileInput(task.id)" title="Fichier">📁</button>
+                          <button v-if="getEntry(task.id).photo" class="btn-photo btn-photo-del" @click="removePhoto(task.id)">✕</button>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          :ref="
+                            (el) => {
+                              if (el) fileInputs[task.id] = el;
+                            }
+                          "
+                          style="display: none"
+                          @change="onFileChange(task.id, $event)"
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          :ref="
+                            (el) => {
+                              if (el) cameraInputs[task.id] = el;
+                            }
+                          "
+                          style="display: none"
+                          @change="onFileChange(task.id, $event)"
+                        />
+                      </div>
+                    </td>
+                    <!-- HISTORY -->
+                    <td>
+                      <button class="history-toggle" @click="toggleHistory(task.id)">
+                        {{ expandedHistory.has(task.id) ? "▲" : "▼" }} {{ historyFor(task.id).filter((e) => e.week !== "_snapshot").length }}
+                        entrée(s)
+                      </button>
+                      <transition name="fade">
+                        <div v-if="expandedHistory.has(task.id)" class="history-panel">
+                          <div class="history-title">Historique</div>
+                          <div v-if="!historyFor(task.id).length" style="font-size: 11px; color: var(--text2)">Aucun historique</div>
+                          <div class="history-entries">
+                            <div v-for="entry in historyFor(task.id)" :key="entry.week" class="history-entry">
+                              <template v-if="entry.week !== '_snapshot'">
+                                <span class="history-week">{{ entry.week }}</span>
+                                <span class="history-rating" :class="entry.rating">{{ entry.rating.toUpperCase() }}</span>
+                                <span class="history-comment">{{ entry.comment || "—" }}</span>
+                              </template>
+                            </div>
+                          </div>
+                        </div>
+                      </transition>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </template>
+        <template v-else>
+          <div style="display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-bottom: 1px solid var(--border)">
+            <button class="btn-hamburger" @click="mobileOpen = true">☰</button>
+          </div>
+          <div class="empty-state">
+            <div class="empty-icon">⬡</div>
+            <div>Sélectionnez un secteur</div>
+          </div>
+        </template>
       </template>
-      <template v-else>
-        <div style="display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-bottom: 1px solid var(--border)">
-          <button class="btn-hamburger" @click="mobileOpen = true">☰</button>
-        </div>
-        <div class="empty-state">
-          <div class="empty-icon">⬡</div>
-          <div>Sélectionnez un secteur</div>
-        </div>
-      </template>
-    </template>
-  </main>
+    </main>
+
 
   <!-- ════════════════════ LIGHTBOX ════════════════════ -->
   <transition name="fade">
@@ -487,6 +490,7 @@
 import { ref, computed, reactive, onMounted } from "vue";
 import { supabase, getUser } from "@/lib/supabase";
 import UserMenu from "@/components/UserMenu.vue";
+import Loader from "@/components/AppLoader/Loader.vue";
 
 const DEFAULT_DATA = {
   sites: [],
@@ -576,11 +580,13 @@ async function loadStorage() {
   return null;
 }
 
-function getStorage() {
+async function getStorage() {
   try {
-    //const { data: server } = await supabase.from("app_rating").select("*").eq("user", userId.value).single();
-    //localStorage.setItem(storageKey.value, JSON.stringify(server.data));
-    //return server.data;
+    if (!localStorage.getItem(storageKey.value)) {
+      const { data: server } = await supabase.from("app_rating").select("*").eq("user", userId.value).single();
+      localStorage.setItem(storageKey.value, JSON.stringify(server.data));
+      return server.data;
+    }
     return JSON.parse(localStorage.getItem(storageKey.value));
   } catch {}
   return null;
@@ -886,6 +892,12 @@ function genId(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${random}`;
 }
 
+function duplicateSector({ site, sector }) {
+  const idx = data.value.sites.findIndex((e) => e.id === site.id);
+  data.value.sites[idx].sectors.push({ ...sector, id: genId("sector"), name: `${sector.name}-Copie` });
+  persistConfig();
+}
+
 function openAddModal(type) {
   editingId.value = null;
 
@@ -1037,6 +1049,7 @@ function agentsSectors(agent) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────
+const loading = ref(true);
 onMounted(async () => {
   userId.value = (await getUser())?.id;
 
@@ -1059,6 +1072,10 @@ onMounted(async () => {
     currentSite.value = data.value.sites[0];
     currentSector.value = data.value.sites[0].sectors[0];
   }
+
+  setTimeout(() => {
+    loading.value = false;
+  }, 300);
 });
 </script>
 
@@ -1095,6 +1112,10 @@ onMounted(async () => {
   min-height: 56px;
 }
 
+.sidebar-logo.collapsed {
+  justify-content: center;
+}
+
 .logo-content {
   overflow: hidden;
   white-space: nowrap;
@@ -1124,8 +1145,8 @@ onMounted(async () => {
 
 .sidebar-toggle {
   flex-shrink: 0;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 6px;
   border: 1px solid var(--border);
   background: var(--bg3);
@@ -1332,7 +1353,7 @@ onMounted(async () => {
   overflow: hidden;
   transition: opacity var(--sidebar-transition);
   margin-top: auto;
-	height: 55px;
+  height: 55px;
 }
 
 .sidebar.collapsed .sidebar-footer {
@@ -1466,7 +1487,6 @@ onMounted(async () => {
   display: flex;
   gap: 6px;
   align-items: center;
-  flex-wrap: wrap;
   flex-shrink: 0;
   justify-content: end;
 }
@@ -2255,6 +2275,7 @@ onMounted(async () => {
   outline: none;
   width: 100%;
   transition: border-color 0.15s;
+  height: 35px;
 }
 .modal-input:focus {
   border-color: var(--accent);
